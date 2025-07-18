@@ -24,7 +24,6 @@ public class BlockRepresenter extends Representer {
     protected Node representMapping(Tag tag,
             Map<?, ?> mapping,
             DumperOptions.FlowStyle flowStyle) {
-        // Idem para mapas
         return super.representMapping(tag, mapping, DumperOptions.FlowStyle.BLOCK);
     }
 }

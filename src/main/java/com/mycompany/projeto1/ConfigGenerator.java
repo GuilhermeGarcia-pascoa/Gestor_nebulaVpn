@@ -11,7 +11,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,18 +28,8 @@ public final class ConfigGenerator {
             boolean isLighthouse,
             String publicIp,
             Map<String, String> lighthouseMap) throws IOException {
-          /*
-        Objects.requireNonNull(templatePath, "templatePath");
-        Objects.requireNonNull(ConfDir, "tempDir");
-        Objects.requireNonNull(hostName, "hostName");
-        Objects.requireNonNull(caPem, "caPem");
-        Objects.requireNonNull(certPem, "certPem");
-        Objects.requireNonNull(keyPem, "keyPem");
-        Objects.requireNonNull(nebulaIp, "nebulaIp");
-        Objects.requireNonNull(lighthouseMap, "lighthouseMap");
-          */
-          
-          if (isLighthouse && (publicIp == null || publicIp.isBlank())) {
+
+        if (isLighthouse && (publicIp == null || publicIp.isBlank())) {
             throw new IllegalArgumentException("publicIp é obrigatório para lighthouse");
         }
 
@@ -58,7 +47,11 @@ public final class ConfigGenerator {
         Map<String, Object> pki = getOrCreate(root, "pki");
         pki.put("ca", caPem.trim());
         pki.put("cert", certPem.trim());
-        pki.put("key", (keyPem.equals("") ? "" : keyPem.trim()));
+        if (keyPem != null && !keyPem.trim().isEmpty()) {
+            pki.put("key", keyPem.trim());
+        } else {
+            pki.remove("key");
+        }
 
         Map<String, Object> shm = getOrCreate(root, "static_host_map");
         for (Map.Entry<String, String> e : lighthouseMap.entrySet()) {
@@ -85,30 +78,13 @@ public final class ConfigGenerator {
         }
 
         Connection conn = FuncoesMain.conn;
-        String debugSql = """
-                          Select * from Hosts_groups
-""";
-        try (Statement st = conn.createStatement(); ResultSet r = st.executeQuery(debugSql)) {
-            while (r.next()) {
-                System.out.println("ID: " + r.getInt("ID"));
-                System.out.println("ID_Hosts: " + r.getString("ID_Host"));
-                System.out.println("ID_Group: " + r.getString("ID_Group"));
-                System.out.println("_____________________________________");
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao verificar todos as ligações de hosts ao grupos!");
-        }
-
         List<Grupo> gruposDoHost = new ArrayList<>();
-        System.out.println(hostName);
 
         String sql = "SELECT g.Inbound AS inbound, g.Outbound AS outbound FROM Groups g JOIN Hosts_groups hg ON g.ID = hg.ID_Group JOIN Hosts h ON h.ID = hg.ID_Host WHERE lower(h.nome) = LOWER(?) AND h.Apagado = 0";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, hostName.trim());
-            System.out.println("Host pesquisado: [" + hostName.trim() + "]");
             try (ResultSet rs = ps.executeQuery()) {
-                System.out.println(ps.toString());
                 while (rs.next()) {
                     String inbound = rs.getString("inbound");
                     String outbound = rs.getString("outbound");

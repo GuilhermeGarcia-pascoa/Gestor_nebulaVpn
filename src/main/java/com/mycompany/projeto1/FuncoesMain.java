@@ -1,5 +1,7 @@
 package com.mycompany.projeto1;
 
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 import static com.mycompany.projeto1.InfoHosts.TxtNome;
 import static com.mycompany.projeto1.MenuPrincipal.TabelaHosts;
 import java.awt.HeadlessException;
@@ -42,6 +44,8 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
@@ -86,9 +90,7 @@ public class FuncoesMain {
 
     public static void main(String[] args) {
 
-        System.out.println("BASE_DIR = " + BASE_DIR);
         LigarBaseDados();
-        //Tabela certificados de autoridade
         try {
             stmt.executeUpdate("""
                                             CREATE TABLE IF NOT EXISTS Hosts (
@@ -140,12 +142,23 @@ public class FuncoesMain {
 
             tempDir = BASE_DIR.resolve("temp");
             ConfDir = BASE_DIR.resolve("Configs");
-            System.out.println("ConfDir = " + ConfDir + "Existe ? " + Files.exists(ConfDir));
+
+            rs = ExecutarComandoSql("SELECT Valor FROM Cache WHERE Nome = 'Tema'");
+            String tema;
+            if (rs.next()) {
+                tema = rs.getString("Valor");
+            } else {
+                tema = "Light";
+                stmt.execute("INSERT INTO Cache (Nome, Valor) VALUES ('Tema', '" + tema + "')");
+            }
+            Tema(tema);
             MenuPrincipal In = new MenuPrincipal();
             In.setLocationRelativeTo(null);
             In.setVisible(true);
-            if (vlr.getCaminhoNe() == null || vlr.getCaminhoCa() == null) {
+
+            if (vlr.getCaminhoNe() == null) {
                 JOptionPane.showMessageDialog(null, "Para iniciar primeiro insira o caminho para o seu nebula\nVá para gerir caminhos", "Aviso!", JOptionPane.WARNING_MESSAGE);
+                MenuPrincipal.Gerirca.setVisible(true);
             }
             if (!Files.exists(tempDir)) {
                 Files.createDirectories(tempDir);
@@ -153,9 +166,23 @@ public class FuncoesMain {
             if (!Files.exists(ConfDir)) {
                 Files.createDirectories(ConfDir);
             }
-        } catch (Exception e) {
+        } catch (HeadlessException | IOException | SQLException e) {
             System.out.println("Teste erro " + e);
         }
+
+    }
+
+    public static void Tema(String tema) {
+        try {
+            if ("Dark".equals(tema)) {
+                UIManager.setLookAndFeel(new FlatDarkLaf());
+            } else if ("Light".equals(tema)) {
+                UIManager.setLookAndFeel(new FlatLightLaf());
+            }
+        } catch (UnsupportedLookAndFeelException e) {
+            System.out.println("Erro ao deixar bonito: " + e);
+        }
+
     }
 
     public String tirar_Mascara(String ip) {
@@ -200,7 +227,6 @@ public class FuncoesMain {
             while ((linha = errorReader.readLine()) != null) {
                 if (linha.contains("certificate expires after signing certificate")) {
                     JOptionPane.showMessageDialog(null, "A validade do seu host excede a validade do seu certificado de autoridade", "Error", JOptionPane.ERROR_MESSAGE);
-                    System.err.println("Erro: " + linha);
 
                 }
                 return;
@@ -217,11 +243,31 @@ public class FuncoesMain {
         }
     }
 
+    public static void ReiniciarApp() {
+        try {
+            String javaBin = System.getProperty("java.home") + "/bin/java";
+            String jarPath = new java.io.File(
+                    FuncoesMain.class.getProtectionDomain().getCodeSource().getLocation().toURI()
+            ).getPath();
+
+            Process  p = new ProcessBuilder(javaBin, "-jar", jarPath)
+            .start();
+            
+             p.waitFor(1, java.util.concurrent.TimeUnit.SECONDS);
+             
+        } catch (IOException | URISyntaxException e) {
+            System.out.println("Erro ao reiniciar : " + e);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(FuncoesMain.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        System.exit(0);
+    }
+
     public static void LigarBaseDados() {
         try {
-            // Caminho absoluto do diretório onde o JAR/classe está localizado
             String currentDir = new File(".").getCanonicalPath();
-            String url = "jdbc:sqlite:" + currentDir + File.separator + "Projeto.db";
+            String url = "jdbc:sqlite:" + currentDir + File.separator + "BdDadosGestorNebula.db";
 
             conn = DriverManager.getConnection(url);
             stmt = conn.createStatement();
@@ -379,7 +425,7 @@ public class FuncoesMain {
 
     public static void carregarTabelaHosts() {
         DefaultTableModel modelo = new DefaultTableModel();
-        modelo.setColumnIdentifiers(new String[]{"Nome", "IP", "Validade", "Descrição", "Lighthouse", "❌"});
+        modelo.setColumnIdentifiers(new String[]{"Nome", "IP", "Validade", "Descrição", "Lighthouse", "X"});
 
         try {
             ResultSet rs = ExecutarComandoSql("SELECT nome, ip, validade, Descricao, IsLighthouse FROM Hosts WHERE Apagado = 0 ORDER BY ID ");
@@ -391,7 +437,7 @@ public class FuncoesMain {
                     rs.getString("validade"),
                     rs.getString("Descricao"),
                     rs.getInt("IsLighthouse") == 1 ? "Sim" : "Não",
-                    "❌"
+                    "X"
                 });
             }
 
@@ -434,6 +480,7 @@ public class FuncoesMain {
     public static void carregarGruposCriarHost() {
         try {
             ResultSet rs = ExecutarComandoSql("SELECT Nome FROM Groups");
+            CriarHost.ComboGrupos.removeAllItems();
             while (rs.next()) {
                 CriarHost.ComboGrupos.addItem(rs.getString("Nome"));
             }
@@ -450,55 +497,83 @@ public class FuncoesMain {
 
     public static void AutopreencherIp() throws SQLException {
         ResultSet rs;
-        rs = FuncoesMain.ExecutarComandoSql("SELECT ip, count(*) FROM Hosts WHERE Apagado = 0 GROUP BY ip ORDER BY count(*) DESC LIMIT 1;");
+        CriarHost.TxtIp.setText("");
+        rs = FuncoesMain.ExecutarComandoSql("SELECT Valor FROM Cache WHERE NOME = 'GerarIpAuto'");
+        if(!(rs.next() && rs.getString("Valor").equals("on")))
+            return;
         String IpMaisUsado = "";
-
-        if (rs.next()) {
-            IpMaisUsado = rs.getString("ip");
-        }
         String cidr = "";
         String baseIp = "";
-        if (IpMaisUsado.contains("/")) {
-            int barra = IpMaisUsado.indexOf("/");
-            cidr = IpMaisUsado.substring(barra);
-            String[] partes = IpMaisUsado.substring(0, barra).split("\\.");
-            baseIp = partes[0] + "." + partes[1] + "." + partes[2];
-            System.out.println(baseIp);
-        }
 
-        Set<Integer> usados = new HashSet<>();
-        rs = FuncoesMain.ExecutarComandoSql("SELECT ip from Hosts where ip LIKE '" + baseIp + ".%' ");
-        while (rs.next()) {
-            String ip = rs.getString("ip");
-            if (ip.contains("/")) {
-                int barra = ip.indexOf("/");
-                String semCidr = ip.substring(0, barra);
-                String[] partes = semCidr.split("\\.");
-                int ultimo = Integer.parseInt(partes[3]);
-                usados.add(ultimo);
-            }
-        }
-        int ipLivre = -1;
+        rs = FuncoesMain.ExecutarComandoSql("SELECT Valor FROM Cache WHERE Nome = 'FaixaAutomatica'");
+        if (rs.next()) {
+            String faixaAuto = rs.getString("Valor");
 
-        for (int i = 2; i < 255; i++) {
-            if (!usados.contains(i)) {
-                ipLivre = i;
-                break;
+            if (faixaAuto.equals("nao")) {
+                rs = FuncoesMain.ExecutarComandoSql("SELECT Valor FROM Cache WHERE Nome = 'IpFaixaAutomatica'");
+                if (rs.next()) {
+                    IpMaisUsado = rs.getString("Valor");
+                }
+            } else {
+                rs = FuncoesMain.ExecutarComandoSql("SELECT ip, count(*) FROM Hosts WHERE Apagado = 0 GROUP BY ip ORDER BY count(*) DESC LIMIT 1;");
+                if (rs.next()) {
+                    IpMaisUsado = rs.getString("ip");
+                }
             }
-        }
-        if (ipLivre != -1) {
-            CriarHost.TxtIp.setText(baseIp + "." + ipLivre);
-            for (int i = 0; i < CriarHost.ComboMask.getComponentCount(); i++) {
-                if (CriarHost.ComboMask.getItemAt(i).equals(cidr)) {
-                    CriarHost.ComboMask.setSelectedIndex(i);
+            if (IpMaisUsado.contains("/")) {
+                int barra = IpMaisUsado.indexOf("/");
+                cidr = IpMaisUsado.substring(barra);
+                String[] partes = IpMaisUsado.substring(0, barra).split("\\.");
+                baseIp = partes[0] + "." + partes[1] + "." + partes[2];
+                System.out.println(baseIp);
+            }
+
+            Set<Integer> usados = new HashSet<>();
+            rs = FuncoesMain.ExecutarComandoSql("SELECT ip from Hosts where ip LIKE '" + baseIp + ".%' ");
+            while (rs.next()) {
+                String ip = rs.getString("ip");
+                if (ip.contains("/")) {
+                    int barra = ip.indexOf("/");
+                    String semCidr = ip.substring(0, barra);
+                    String[] partes = semCidr.split("\\.");
+                    int ultimo = Integer.parseInt(partes[3]);
+                    usados.add(ultimo);
+                }
+            }
+
+            int ipLivre = -1;
+            rs = FuncoesMain.ExecutarComandoSql("SELECT Valor FROM Cache WHERE Nome = 'IndentificadorMin'");
+            int ValorMinimo = Integer.parseInt(rs.getString("Valor"));
+            rs = FuncoesMain.ExecutarComandoSql("SELECT Valor FROM Cache WHERE Nome = 'IndentificadorMax'");
+            int ValorMaximo = Integer.parseInt(rs.getString("Valor"));
+            for (int i = ValorMinimo; i < ValorMaximo; i++) {
+                if (!usados.contains(i)) {
+                    ipLivre = i;
                     break;
+                }
+            }
+            if (ipLivre != -1 && baseIp != "") {
+                CriarHost.TxtIp.setText(baseIp + "." + ipLivre);
+                for (int i = 0; i < CriarHost.ComboMask.getComponentCount(); i++) {
+                    if (CriarHost.ComboMask.getItemAt(i).equals(cidr)) {
+                        CriarHost.ComboMask.setSelectedIndex(i);
+                        break;
+                    }
                 }
             }
         }
     }
 
-    public static boolean hostJaExiste(String nome, String ip) throws SQLException {
-        ResultSet rs = ExecutarComandoSql("SELECT COUNT(*) FROM Hosts WHERE (nome = '" + nome + "' OR ip = '" + ip + "') AND Apagado = 0");
+    public static boolean hostJaExisteNome(String nome) throws SQLException {
+        ResultSet rs = ExecutarComandoSql("SELECT COUNT(*) FROM Hosts WHERE (nome = '" + nome + "') AND Apagado = 0");
+        if (rs.next()) {
+            return rs.getInt(1) > 0;
+        }
+        return false;
+    }
+
+    public static boolean hostJaExisteIp(String ip) throws SQLException {
+        ResultSet rs = ExecutarComandoSql("SELECT COUNT(*) FROM Hosts WHERE (ip = '" + ip + "') AND Apagado = 0");
         if (rs.next()) {
             return rs.getInt(1) > 0;
         }
@@ -607,7 +682,7 @@ public class FuncoesMain {
                     rs = ExecutarComandoSql("SELECT ip, ipPublico FROM Hosts WHERE isLighthouse = 1 and Apagado is not 1");
                 } else {
                     if (!nome.isBlank()) {
-                        if (FuncoesMain.hostJaExiste(nome, "")) {
+                        if (FuncoesMain.hostJaExisteNome(nome)) {
                             rs = ExecutarComandoSql("SELECT ip, ipPublico FROM Hosts WHERE nome = '" + nome + "'");
 
                         } else {
@@ -621,7 +696,6 @@ public class FuncoesMain {
                 while (rs.next()) {
                     ip = rs.getString("ip");
                     ipPublico = rs.getString("ipPublico");
-                    System.out.println(ip + ": " + ipPublico + "\n");
                     if (!StaticHostMap.containsKey(ip)) {
                         StaticHostMap.put(ip.split("/")[0], List.of(ipPublico));
                     }
@@ -902,14 +976,11 @@ public class FuncoesMain {
     }
 
     public static boolean AlgoAberto() {
-        if (MenuPrincipal.Criarhost.isVisible()
+        return !(MenuPrincipal.Criarhost.isVisible()
                 || MenuPrincipal.criarConfig.isVisible()
                 || MenuPrincipal.Gerirca.isVisible()
-                || MenuPrincipal.grupos.isVisible()) {
-            return false;
-        }
-
-        return true;
+                || MenuPrincipal.grupos.isVisible()
+                || MenuPrincipal.configuracoes.isVisible());
     }
 
 }

@@ -7,16 +7,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.cert.CertificateException;
-import java.sql.Array;
 import java.sql.SQLException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -26,22 +21,23 @@ import javax.swing.event.DocumentListener;
 public class CriarHost extends javax.swing.JFrame {
 
     FuncoesMain prj = new FuncoesMain();
-    boolean CarregandoTela = false;
-    String itensRemovido = "";
 
     public CriarHost() throws SQLException, CertificateException, IOException {
-        CarregandoTela = true;
+        this.setIconImage(
+                new ImageIcon(getClass().getResource("/nebula.png")).getImage()
+        );
         initComponents();
+
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         FuncoesMain.AutopreencherIp();
         validarIp();
-        FuncoesMain.carregarGruposCriarHost();
+
         Date validadeDate = Date.from(ZonedDateTime.now(ZoneOffset.UTC).toLocalDate().plusMonths(1).atStartOfDay(ZoneOffset.UTC).toInstant());
-        System.out.println(validadeDate.toString());
         CampoObrigatorioNome.setVisible(false);
         CampoObrigatorioIp.setVisible(false);
         CampoObrigatorioGrupo.setVisible(false);
         this.setResizable(false);
+        this.setLocationRelativeTo(null);
 
         TxtNome.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -78,7 +74,6 @@ public class CriarHost extends javax.swing.JFrame {
         });
 
         DataValidade.setDate(validadeDate);
-        CarregandoTela = false;
     }
 
     public void validarNome() {
@@ -162,6 +157,11 @@ public class CriarHost extends javax.swing.JFrame {
 
         ComboMask.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "/08", "/16", "/24" }));
         ComboMask.setSelectedIndex(2);
+        ComboMask.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ComboMaskActionPerformed(evt);
+            }
+        });
 
         BtnVoltar.setText("Voltar");
         BtnVoltar.addActionListener(new java.awt.event.ActionListener() {
@@ -294,8 +294,7 @@ public class CriarHost extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel8)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(BtnPrc, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(80, 80, 80))))
+                                .addComponent(BtnPrc, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(6, 6, 6)
                         .addComponent(jLabel4)
@@ -406,13 +405,12 @@ public class CriarHost extends javax.swing.JFrame {
                 Opcional1.setVisible(true);
                 Opcional2.setVisible(false);
             } catch (SQLException e) {
-                System.out.println("Erro : " + e);
             }
         }
     }//GEN-LAST:event_BtnCriarActionPerformed
 
     public int ProcurandoErros() {
-        //Procurando erros!!
+
         if (TxtNome.getText().isBlank()) {
             return 1;
         }
@@ -436,9 +434,15 @@ public class CriarHost extends javax.swing.JFrame {
         if (DataValidade.getDate() == null) {
             return 7;
         }
+        System.out.println((DataValidade.getDate().getTime() - System.currentTimeMillis()) / (1000 * 60 * 60));
+        if ((DataValidade.getDate().getTime() - System.currentTimeMillis()) / (1000 * 60 * 60) < 3) {
+            return 8;
+        }
         try {
-            if (FuncoesMain.hostJaExiste(TxtNome.getText(), TxtIp.getText())) {
-                return 8;
+            if (FuncoesMain.hostJaExisteNome(TxtNome.getText())) {
+                return 9;
+            } else if (FuncoesMain.hostJaExisteIp(TxtIp.getText() + ComboMask.getSelectedItem())) {
+                return 10;
             }
         } catch (SQLException e) {
             System.out.println("Erro ao verificar se o host ja existe no criar host! : " + e);
@@ -448,32 +452,53 @@ public class CriarHost extends javax.swing.JFrame {
 
     public boolean tratandoErros(int erro) {
         switch (erro) {
-            case 0:
+            case 0 -> {
                 return true;
-            case 1:
+            }
+            case 1 -> {
                 CampoObrigatorioNome.setVisible(true);
                 return false;
-            case 2:
+            }
+            case 2 -> {
                 JOptionPane.showMessageDialog(null, "O nome não pode conter caracteres especiais", "Error", JOptionPane.ERROR_MESSAGE);
                 return false;
-            case 3:
+            }
+            case 3 -> {
                 CampoObrigatorioIp.setVisible(true);
                 return false;
-            case 4:
+            }
+            case 4 -> {
                 JOptionPane.showMessageDialog(null, "Este ip não segue segue a estrutura certa", "Error", JOptionPane.ERROR_MESSAGE);
                 return false;
-            case 5:
+            }
+            case 5 -> {
                 CampoObrigatorioGrupo.setVisible(true);
                 return false;
-            case 6:
+            }
+            case 6 -> {
                 JOptionPane.showMessageDialog(null, "Lighthouses tem de ter um ip publico obrigatoriamente", "Error", JOptionPane.ERROR_MESSAGE);
                 return false;
-            case 7:
+            }
+            case 7 -> {
                 JOptionPane.showMessageDialog(null, "A validade é opcional mais não pode estar vazia\nIsso pois todo host tem 1 mes de validade por padão", "Error", JOptionPane.ERROR_MESSAGE);
                 return false;
-            default:
+            }
+            case 8 -> {
+                JOptionPane.showMessageDialog(null, "A tada de validade não pode ser inferior a 3 horas", "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+            case 9 -> {
+                JOptionPane.showMessageDialog(null, "Já existe um host com esse nome!", "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+            case 10 -> {
+                JOptionPane.showMessageDialog(null, "Ja existe um host com este mesmo IP!", "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+            default -> {
                 System.out.println("Nenhum erro econtrado para(Codigo de erro): " + erro);
                 return true;
+            }
         }
     }
 
@@ -509,6 +534,10 @@ public class CriarHost extends javax.swing.JFrame {
     private void CheckNomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CheckNomeActionPerformed
 
     }//GEN-LAST:event_CheckNomeActionPerformed
+
+    private void ComboMaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ComboMaskActionPerformed
+
+    }//GEN-LAST:event_ComboMaskActionPerformed
     public static void main(String args[]) {
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {

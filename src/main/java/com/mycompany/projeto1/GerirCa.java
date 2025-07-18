@@ -2,16 +2,11 @@ package com.mycompany.projeto1;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -24,9 +19,12 @@ public class GerirCa extends javax.swing.JFrame {
 
     public GerirCa() {
         initComponents();
-
+        this.setIconImage(
+                new ImageIcon(getClass().getResource("/nebula.png")).getImage()
+        );
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setResizable(false);
+        this.setLocationRelativeTo(null);
     }
 
     @SuppressWarnings("unchecked")
@@ -198,12 +196,10 @@ public class GerirCa extends javax.swing.JFrame {
 
     }//GEN-LAST:event_BtnProcurarNeActionPerformed
 
-
     private void TxtCaminhoNeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TxtCaminhoNeActionPerformed
 
     }//GEN-LAST:event_TxtCaminhoNeActionPerformed
     public String VerificaCaminho(String caminho) {
-        System.out.println("Caminho recebido: [" + caminho + "]");
         Path exe = Paths.get(caminho);
         String nomeExe = exe.getFileName().toString().toLowerCase();   // pp.exe
 
@@ -215,26 +211,23 @@ public class GerirCa extends javax.swing.JFrame {
             return null;
         }
 
-        /* 2. executa --help e lê a saída */
         try {
             Process p = new ProcessBuilder(exe.toString(), "--help")
                     .redirectErrorStream(true)
                     .start();
 
-            /* aguarda até 3 s; se não terminar, ainda assim continua lendo stdout */
             p.waitFor(3, java.util.concurrent.TimeUnit.SECONDS);
 
             String out = new String(p.getInputStream().readAllBytes()).toLowerCase();
-            System.out.println(out);                        // debug ─ pode remover depois
+            System.out.println(out);
 
-            /* 3. critérios de aceitação */
             boolean usoCorreto = out.contains("usage of")
-                    && out.contains(nomeExe) // contém o próprio nome
-                    && out.contains("keygen") // comandos típicos do cert
+                    && out.contains(nomeExe)
+                    && out.contains("keygen")
                     && out.contains("sign");
 
             if (usoCorreto) {
-                return exe.toString();                      // ← caminho COMPLETO
+                return exe.toString();
             }
 
         } catch (IOException | InterruptedException e) {
@@ -244,7 +237,6 @@ public class GerirCa extends javax.swing.JFrame {
             return null;
         }
 
-        /* 4. Caso rejeite */
         JOptionPane.showMessageDialog(null,
                 "O arquivo selecionado não parece ser o nebula‑cert.",
                 "Aviso!", JOptionPane.ERROR_MESSAGE);

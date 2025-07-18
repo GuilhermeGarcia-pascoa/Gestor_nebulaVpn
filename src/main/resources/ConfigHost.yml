@@ -1,6 +1,3 @@
-#pki: CA
-#Cert: Certificado do host
-#Key: Chave do host
 pki:
     ca: |
     

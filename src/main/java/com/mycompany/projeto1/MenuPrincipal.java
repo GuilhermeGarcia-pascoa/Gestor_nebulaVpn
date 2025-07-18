@@ -2,25 +2,59 @@ package com.mycompany.projeto1;
 
 import java.awt.Cursor;
 import java.awt.Desktop;
+import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.cert.CertificateException;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 public class MenuPrincipal extends javax.swing.JFrame {
 
+    public static boolean iniciandoComponentes = true;
     public static CriarHost Criarhost;
     public static GerirCa Gerirca = new GerirCa();
     public static InfoHosts criarConfig = new InfoHosts();
     public static Grupos grupos = new Grupos();
+    public static Configuracoes configuracoes = new Configuracoes();
 
     public MenuPrincipal() {
         initComponents();
+        this.setIconImage(
+                new ImageIcon(getClass().getResource("/nebula.png")).getImage()
+        );
+        ImageIcon IconeConfig = new ImageIcon(new ImageIcon(getClass().getResource("/configuracao.png")).getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH));
+        BtnConfig.setContentAreaFilled(false);
+        BtnConfig.setBorderPainted(false);
+        BtnConfig.setFocusPainted(false);
+        BtnConfig.setOpaque(false);
+        BtnConfig.setIcon(IconeConfig);
+        
+        ImageIcon IconeAddHost = new ImageIcon(new ImageIcon(getClass().getResource("/AdicionarHost.png")).getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH));
+        BtnCriarHost.setContentAreaFilled(false);
+        BtnCriarHost.setBorderPainted(false);
+        BtnCriarHost.setFocusPainted(false);
+        BtnCriarHost.setOpaque(false);
+        BtnCriarHost.setIcon(IconeAddHost);
+        
+        ImageIcon IconeGrupos = new ImageIcon(new ImageIcon(getClass().getResource("/grupo.png")).getImage().getScaledInstance(27, 27, Image.SCALE_SMOOTH));
+        BtnGrupos.setContentAreaFilled(false);
+        BtnGrupos.setBorderPainted(false);
+        BtnGrupos.setFocusPainted(false);
+        BtnGrupos.setOpaque(false);
+        BtnGrupos.setIcon(IconeGrupos);
+        
+        ImageIcon IconeGerirHost = new ImageIcon(new ImageIcon(getClass().getResource("/GerirHosts.png")).getImage().getScaledInstance(27, 27, Image.SCALE_SMOOTH));
+        BtnGerirHosts.setContentAreaFilled(false);
+        BtnGerirHosts.setBorderPainted(false);
+        BtnGerirHosts.setFocusPainted(false);
+        BtnGerirHosts.setOpaque(false);
+        BtnGerirHosts.setIcon(IconeGerirHost);
+        
         FuncoesMain.carregarTabelaHosts();
         criarConfig.setLocationRelativeTo(null);
         TabelaHosts.setDefaultEditor(Object.class, null);
@@ -28,7 +62,6 @@ public class MenuPrincipal extends javax.swing.JFrame {
         this.setResizable(false);
         try {
             Criarhost = new CriarHost();
-
         } catch (SQLException | CertificateException | IOException e) {
             System.out.println("Erro ao declarar classes no main : " + e);
         }
@@ -39,12 +72,12 @@ public class MenuPrincipal extends javax.swing.JFrame {
             public void mouseClicked(MouseEvent e) {
                 try {
                     Desktop.getDesktop().browse(new URI("https://github.com/GuilhermeGarcia-pascoa"));
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                } catch (IOException | URISyntaxException ex) {
+                    System.out.println("Erro ao mostrar url para github : " + e);
                 }
             }
         });
-
+        iniciandoComponentes = false;
     }
 
     @SuppressWarnings("unchecked")
@@ -53,14 +86,13 @@ public class MenuPrincipal extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        jLabel1 = new javax.swing.JLabel();
         BtnCriarHost = new javax.swing.JButton();
-        GerirCa = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         TabelaHosts = new javax.swing.JTable();
-        BtnCriarConfig = new javax.swing.JButton();
+        BtnGerirHosts = new javax.swing.JButton();
         BtnGrupos = new javax.swing.JButton();
         LblCriadoPor = new javax.swing.JLabel();
+        BtnConfig = new javax.swing.JButton();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -76,21 +108,12 @@ public class MenuPrincipal extends javax.swing.JFrame {
         jScrollPane1.setViewportView(jTable1);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        jLabel1.setText("Nebula");
+        setTitle("Gestor Neubla");
 
         BtnCriarHost.setText("Criar Host");
         BtnCriarHost.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 BtnCriarHostActionPerformed(evt);
-            }
-        });
-
-        GerirCa.setText("Gerir caminhos");
-        GerirCa.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                GerirCaActionPerformed(evt);
             }
         });
 
@@ -113,10 +136,10 @@ public class MenuPrincipal extends javax.swing.JFrame {
         });
         jScrollPane2.setViewportView(TabelaHosts);
 
-        BtnCriarConfig.setText("Criar Configs");
-        BtnCriarConfig.addActionListener(new java.awt.event.ActionListener() {
+        BtnGerirHosts.setText("Gerir Hosts");
+        BtnGerirHosts.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BtnCriarConfigActionPerformed(evt);
+                BtnGerirHostsActionPerformed(evt);
             }
         });
 
@@ -132,6 +155,13 @@ public class MenuPrincipal extends javax.swing.JFrame {
         LblCriadoPor.setText("<html><p style='text-align: right;'>Criado por <a href=''>Guilherme Vommaro Garcia</a></html>");
         LblCriadoPor.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
 
+        BtnConfig.setText("Configurações");
+        BtnConfig.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BtnConfigActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -139,62 +169,51 @@ public class MenuPrincipal extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 549, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jLabel1)
-                        .addGap(279, 279, 279))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 549, Short.MAX_VALUE)
-                        .addContainerGap())))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(31, 31, 31)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(LblCriadoPor)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(BtnCriarHost, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
+                        .addComponent(BtnCriarHost, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(BtnGerirHosts, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(BtnGrupos, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(GerirCa)
-                        .addGap(18, 18, 18)
-                        .addComponent(BtnCriarConfig, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(0, 0, Short.MAX_VALUE))
+                        .addComponent(BtnConfig, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(LblCriadoPor)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(41, 41, 41)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(BtnCriarHost)
                     .addComponent(BtnGrupos)
-                    .addComponent(GerirCa)
-                    .addComponent(BtnCriarConfig))
-                .addGap(18, 18, Short.MAX_VALUE)
+                    .addComponent(BtnConfig)
+                    .addComponent(BtnGerirHosts))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(LblCriadoPor, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addContainerGap(36, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void BtnCriarHostActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnCriarHostActionPerformed
-        if (FuncoesMain.AlgoAberto())
+        if (FuncoesMain.AlgoAberto()) {
             Criarhost.setVisible(true);
+            FuncoesMain.carregarGruposCriarHost();
+        }
     }//GEN-LAST:event_BtnCriarHostActionPerformed
 
-    private void GerirCaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GerirCaActionPerformed
-        if (FuncoesMain.AlgoAberto())
-            Gerirca.setVisible(true);
-    }//GEN-LAST:event_GerirCaActionPerformed
-
-    private void BtnCriarConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnCriarConfigActionPerformed
-        if (FuncoesMain.AlgoAberto())
+    private void BtnGerirHostsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnGerirHostsActionPerformed
+        if (FuncoesMain.AlgoAberto()) {
             criarConfig.setVisible(true);
-    }//GEN-LAST:event_BtnCriarConfigActionPerformed
+        }
+    }//GEN-LAST:event_BtnGerirHostsActionPerformed
 
     private void TabelaHostsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TabelaHostsMouseClicked
         int linha = TabelaHosts.rowAtPoint(evt.getPoint());
@@ -214,8 +233,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
 
         if (coluna == TabelaHosts.getColumnCount() - 1 && linha >= 0) {
             if (JOptionPane.showConfirmDialog(
-                    null, "Tem certeza que deseja realizar esta ação?", "Confirmação", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                System.out.println("Aceite");
+                    null, "Tem certeza que deseja apagar este host?", "Confirmação", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                 FuncoesMain.ApagarUsuario((TabelaHosts.getValueAt(linha, 0)).toString());
             }
         }
@@ -229,6 +247,15 @@ public class MenuPrincipal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_BtnGruposActionPerformed
 
+    private void BtnConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnConfigActionPerformed
+        if(FuncoesMain.AlgoAberto())
+            configuracoes.setVisible(true);
+    }//GEN-LAST:event_BtnConfigActionPerformed
+
+    public static void FecharConfigs(){
+        configuracoes.dispose();
+    }
+    
     public static void main(String args[]) {
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -245,13 +272,12 @@ public class MenuPrincipal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton BtnCriarConfig;
+    private javax.swing.JButton BtnConfig;
     private javax.swing.JButton BtnCriarHost;
+    private javax.swing.JButton BtnGerirHosts;
     private javax.swing.JButton BtnGrupos;
-    private javax.swing.JButton GerirCa;
     private javax.swing.JLabel LblCriadoPor;
     public static javax.swing.JTable TabelaHosts;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable1;

@@ -7,8 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
@@ -16,7 +14,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -31,6 +29,9 @@ public class InfoHosts extends javax.swing.JFrame {
 
     public InfoHosts() {
         initComponents();
+        this.setIconImage(
+                new ImageIcon(getClass().getResource("/nebula.png")).getImage()
+        );
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         this.setLocationRelativeTo(null);
         this.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -42,6 +43,7 @@ public class InfoHosts extends javax.swing.JFrame {
             }
         });
         this.setResizable(false);
+        this.setLocationRelativeTo(null);
     }
 
     @SuppressWarnings("unchecked")
@@ -289,14 +291,10 @@ public class InfoHosts extends javax.swing.JFrame {
         //Pede a data ao usuario!
         Date novaData = solicitarNovaDataValidade(null);
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        
-        
-        
-        
+
         TxtValidade.setText(sdf.format(novaData) + "(" + Duration.between(Instant.now(), novaData.toInstant()).toHours() + ")");
         FuncoesMain.RenovaData(TxtNome.getText(), novaData);
-        
-        
+
     }//GEN-LAST:event_BtnRenovarActionPerformed
 
     public static void main(String args[]) {

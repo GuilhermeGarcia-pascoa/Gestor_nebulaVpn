@@ -3,6 +3,7 @@ package com.mycompany.projeto1;
 import static com.mycompany.projeto1.FuncoesMain.stmt;
 import java.awt.Color;
 import java.sql.SQLException;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -11,7 +12,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 
 public class Grupos extends javax.swing.JFrame {
-    
+
     JTable InboundAntiga;
     JTable OutboundAntiga;
     boolean CriandoNova = false;
@@ -19,6 +20,9 @@ public class Grupos extends javax.swing.JFrame {
 
     public Grupos() {
         initComponents();
+        this.setIconImage(
+                new ImageIcon(getClass().getResource("/nebula.png")).getImage()
+        );
         this.setLocationRelativeTo(null);
         TxtNome.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -39,6 +43,7 @@ public class Grupos extends javax.swing.JFrame {
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         this.setResizable(false);
+        this.setLocationRelativeTo(null);
         OutboundTable.setModel(GestorGrupos.novoModeloPadrao());
         InboundTable.setModel(GestorGrupos.novoModeloPadrao());
         configurarComboHeader(OutboundTable, 2);
@@ -160,6 +165,7 @@ public class Grupos extends javax.swing.JFrame {
 
         BtnGravar.setText("Gravar");
         BtnGravar.setToolTipText("");
+        BtnGravar.setEnabled(false);
         BtnGravar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 BtnGravarActionPerformed(evt);
@@ -212,24 +218,15 @@ public class Grupos extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(TxtNome, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(CheckName))
-                    .addComponent(jLabel2)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(BtnAdd)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(BtnGravar))
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel3)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(BtnAddOutbound)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(BtnRmvOutbound))))
+                                .addComponent(jLabel3)
+                                .addGap(18, 18, 18)
+                                .addComponent(BtnAddOutbound)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(BtnRmvOutbound))
+                            .addComponent(BtnGravar))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -238,7 +235,16 @@ public class Grupos extends javax.swing.JFrame {
                                 .addComponent(BtnAddInbound)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(BtnRmvInbound))
-                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(TxtNome, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(CheckName))
+                            .addComponent(jLabel2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(BtnAdd)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(13, Short.MAX_VALUE))
@@ -252,11 +258,17 @@ public class Grupos extends javax.swing.JFrame {
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel2)
-                        .addGap(7, 7, 7)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(TxtNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(CheckName))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(7, 7, 7)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(TxtNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(CheckName))
+                                .addGap(9, 9, 9))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(BtnAdd)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(BtnAddOutbound, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -272,11 +284,9 @@ public class Grupos extends javax.swing.JFrame {
                             .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 305, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 305, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(BtnAdd)
-                    .addComponent(BtnGravar))
-                .addContainerGap(12, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(BtnGravar)
+                .addContainerGap())
         );
 
         pack();
@@ -353,30 +363,12 @@ public class Grupos extends javax.swing.JFrame {
     }//GEN-LAST:event_BtnRmvInboundActionPerformed
 
     private void BtnGravarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnGravarActionPerformed
-        System.out.println(OutboundTable.getColumnModel().getColumn(2).getHeaderValue().toString());
-        System.out.println(OutboundAntiga.getColumnModel().getColumn(2).getHeaderValue().toString());
-        System.out.println(InboundTable.getColumnModel().getColumn(2).getHeaderValue().toString());
-        System.out.println(InboundAntiga.getColumnModel().getColumn(2).getHeaderValue().toString());
-        if (CriandoNova) {
 
-            if (!CheckName.isSelected()) {
-                JOptionPane.showMessageDialog(null, "O nome não pode conter caracteres especiais", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            try {
-                if (FuncoesMain.GrupoJaExiste(TxtNome.getText())) {
-                    JOptionPane.showMessageDialog(null, "Ja existe um grupo com este nome\nTroque o nome!", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            } catch (SQLException e) {
-                System.out.println("Erro ao verificar conteudo criando nova: " + e);
-            }
-        } else {
-            if (GestorGrupos.saoIguais(InboundTable, InboundAntiga) && GestorGrupos.saoIguais(OutboundTable, OutboundAntiga)) {
-                System.out.println("As tabelas são iguais");
-                return;
-            }
+        if (GestorGrupos.saoIguais(InboundTable, InboundAntiga) && GestorGrupos.saoIguais(OutboundTable, OutboundAntiga)) {
+            System.out.println("As tabelas são iguais");
+            return;
         }
+
         if (FuncoesMain.TemCelulaVazia(OutboundTable) || FuncoesMain.TemCelulaVazia(InboundTable)) {
             JOptionPane.showMessageDialog(null, "As tabelas não podem ter celulas vazias \nO valor predefinido é \"any\"!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -396,7 +388,96 @@ public class Grupos extends javax.swing.JFrame {
                     + InboundTable.getValueAt(i, 2) + "<" + InboundTable.getColumnModel()
                     .getColumn(2).getHeaderValue().toString() + ">;";
         }
-        if (CriandoNova) {
+        try {
+            stmt.execute("UPDATE Groups SET Outbound = '" + OutboundText.substring(0, OutboundText.length() - 1) + "', Inbound = '" + InboundText.substring(0, InboundText.length() - 1) + "' WHERE Nome = '" + TxtNome.getText() + "'");
+            System.out.println("O grupo " + TxtNome.getText() + " foi atualizado com sucesso!!!!");
+        } catch (SQLException e) {
+            System.out.println("Erro ao dar o update do grupo na tabela: " + e);
+        }
+
+
+    }//GEN-LAST:event_BtnGravarActionPerformed
+
+    private void TblGruposMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TblGruposMouseClicked
+        BtnGravar.setEnabled(true);
+        
+        int linha = TblGrupos.rowAtPoint(evt.getPoint());
+        int coluna = TblGrupos.columnAtPoint(evt.getPoint());
+        
+        
+        
+        if (linha >= 0) {
+            String nomeGp = TblGrupos.getValueAt(linha, coluna).toString();
+            FuncoesMain.carregarDetalhesGrupo(nomeGp, InboundTable, OutboundTable, TblHosts);
+            configurarComboHeader(InboundTable, 2);
+            configurarComboHeader(OutboundTable, 2);
+            TxtNome.setText(nomeGp);
+            InboundAntiga = clonarTabela(InboundTable);
+            OutboundAntiga = clonarTabela(OutboundTable);
+            CriandoNova = false;
+            TxtNome.setEnabled(false);
+        }
+
+    }//GEN-LAST:event_TblGruposMouseClicked
+    private JTable clonarTabela(JTable origem) {
+        DefaultTableModel src = (DefaultTableModel) origem.getModel();
+        DefaultTableModel dst = new DefaultTableModel();
+
+        for (int c = 0; c < src.getColumnCount(); c++) {
+            dst.addColumn(origem.getColumnModel().getColumn(c).getHeaderValue());
+        }
+        for (int r = 0; r < src.getRowCount(); r++) {
+            Object[] linha = new Object[src.getColumnCount()];
+            for (int c = 0; c < src.getColumnCount(); c++) {
+                linha[c] = src.getValueAt(r, c);
+            }
+            dst.addRow(linha);
+        }
+        AddCount = false;
+        return new JTable(dst);
+    }
+
+    private boolean AddCount = false;
+
+    private void BtnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnAddActionPerformed
+        if (!AddCount) {
+            AddCount = true;
+            CriandoNova = true;
+            BtnGravar.setEnabled(false);
+            InboundTable = limparTabela(InboundTable, true);
+            OutboundTable = limparTabela(OutboundTable, true);
+            TblHosts = limparTabela(TblHosts, false);
+            configurarComboHeader(OutboundTable, 2);
+            configurarComboHeader(InboundTable, 2);
+            TxtNome.setEnabled(true);
+            TxtNome.setText("");
+            TxtNome.requestFocus();
+        } else {
+
+            //Codigo copiado do gravar para Adicionar nova tabela kkk
+            if (!CheckName.isSelected()) {
+                JOptionPane.showMessageDialog(null, "O nome não pode conter caracteres especiais", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if (FuncoesMain.TemCelulaVazia(OutboundTable) || FuncoesMain.TemCelulaVazia(InboundTable)) {
+                JOptionPane.showMessageDialog(null, "As tabelas não podem ter celulas vazias \nO valor predefinido é \"any\"!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String OutboundText = "";
+            for (int i = 0; i < OutboundTable.getRowCount(); i++) {
+                OutboundText += OutboundTable.getValueAt(i, 0) + "|"
+                        + OutboundTable.getValueAt(i, 1).toString() + "|"
+                        + OutboundTable.getValueAt(i, 2) + "<" + OutboundTable.getColumnModel()
+                        .getColumn(2).getHeaderValue().toString() + ">;";
+            }
+            String InboundText = "";
+            for (int i = 0; i < InboundTable.getRowCount(); i++) {
+                InboundText += InboundTable.getValueAt(i, 0).toString() + "|"
+                        + InboundTable.getValueAt(i, 1).toString() + "|"
+                        + InboundTable.getValueAt(i, 2) + "<" + InboundTable.getColumnModel()
+                        .getColumn(2).getHeaderValue().toString() + ">;";
+            }
             try {
                 stmt.execute("INSERT INTO Groups (Nome, Outbound, Inbound) VALUES ('" + TxtNome.getText() + "', '" + OutboundText.substring(0, OutboundText.length() - 1) + "', '" + InboundText.substring(0, InboundText.length() - 1) + "')");
                 FuncoesMain.carregarTabelaGrupos();
@@ -410,59 +491,9 @@ public class Grupos extends javax.swing.JFrame {
             } catch (SQLException e) {
                 System.out.println("Erro ao adicionar o grupo na base de dados" + e);
             }
-        } else {
-            try {
-                stmt.execute("UPDATE Groups SET Outbound = '" + OutboundText.substring(0, OutboundText.length() - 1) + "', Inbound = '" + InboundText.substring(0, InboundText.length() - 1) + "' WHERE Nome = '" + TxtNome.getText() + "'");
-                System.out.println("O grupo " + TxtNome.getText() + " foi atualizado com sucesso!!!!");
-            } catch (SQLException e) {
-                System.out.println("Erro ao dar o update do grupo na tabela: " + e);
-            }
-        }
-    }//GEN-LAST:event_BtnGravarActionPerformed
 
-    private void TblGruposMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TblGruposMouseClicked
-        int linha = TblGrupos.rowAtPoint(evt.getPoint());
-        int coluna = TblGrupos.columnAtPoint(evt.getPoint());
-        if (linha >= 0) {
-            String nomeGp = TblGrupos.getValueAt(linha, coluna).toString();
-            FuncoesMain.carregarDetalhesGrupo(nomeGp, InboundTable, OutboundTable, TblHosts);
-            configurarComboHeader(InboundTable, 2);
-            configurarComboHeader(OutboundTable, 2);
-            TxtNome.setText(nomeGp);
-            InboundAntiga = clonarTabela(InboundTable);
-            OutboundAntiga = clonarTabela(OutboundTable);
-            CriandoNova = false;
+            AddCount = false;
         }
-
-    }//GEN-LAST:event_TblGruposMouseClicked
-    private JTable clonarTabela(JTable origem) {
-        DefaultTableModel src = (DefaultTableModel) origem.getModel();
-        DefaultTableModel dst = new DefaultTableModel();
-
-        // copia cabeçalhos
-        for (int c = 0; c < src.getColumnCount(); c++) {
-            dst.addColumn(origem.getColumnModel().getColumn(c).getHeaderValue());
-        }
-        // copia linhas
-        for (int r = 0; r < src.getRowCount(); r++) {
-            Object[] linha = new Object[src.getColumnCount()];
-            for (int c = 0; c < src.getColumnCount(); c++) {
-                linha[c] = src.getValueAt(r, c);
-            }
-            dst.addRow(linha);
-        }
-        return new JTable(dst);          // tabela só para comparação
-    }
-    private void BtnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnAddActionPerformed
-        CriandoNova = true;
-        InboundTable = limparTabela(InboundTable, true);
-        OutboundTable = limparTabela(OutboundTable, true);
-        TblHosts = limparTabela(TblHosts, false);
-        configurarComboHeader(OutboundTable, 2);
-        configurarComboHeader(InboundTable, 2);
-        TxtNome.setEnabled(true);
-        TxtNome.setText("");
-        BtnGravar.setEnabled(true);
     }//GEN-LAST:event_BtnAddActionPerformed
 
     private JTable limparTabela(JTable Tabela, boolean op) {
@@ -495,26 +526,13 @@ public class Grupos extends javax.swing.JFrame {
 
                 }
             }
-        } catch (ClassNotFoundException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(Grupos.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Grupos.class
-                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
-
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Grupos.class
-                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
-
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Grupos.class
-                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Grupos().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new Grupos().setVisible(true);
         });
     }
 
