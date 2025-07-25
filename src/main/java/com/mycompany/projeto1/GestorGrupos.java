@@ -6,7 +6,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 public class GestorGrupos {
-
     public static class LastRowEditableModel extends DefaultTableModel {
 
         public LastRowEditableModel(Object[] colNames) {
@@ -42,11 +41,17 @@ public class GestorGrupos {
             }
 
             String s = v.toString().trim();
-            if (s.isEmpty() || "any".equalsIgnoreCase(s)) {
+            if (s.isEmpty()) {
                 return false;
             }
         }
-        return true;
+        
+        for (int col = 0; col < m.getColumnCount(); col++){
+            Object v = m.getValueAt(ultima, col);
+            String s = m.getValueAt(ultima, col).toString().trim();
+            if(!s.equalsIgnoreCase("any")) return true;
+        }
+        return false;
     }
 
     public static boolean saoIguais(JTable t1, JTable t2) {
